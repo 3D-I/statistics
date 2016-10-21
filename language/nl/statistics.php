@@ -3,7 +3,7 @@
 *
 * @package Statistics
 * @copyright (c) 2014 ForumHulp.com
-* @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+* @license Proprietary
 *
 */
 
@@ -40,7 +40,13 @@ $lang = array_merge($lang, array(
 	'USERSTATS'		=> 'Bezoekers Stats Grafieken',
 	'LASTVISITS'	=> 'Laatste Pagina bezoeken',
 	'FL_DATE'		=> 'Archief tabel info',
+	'UGROUPS'		=> 'Gebruikers groupen',
 	'UNIQUE'		=> 'Unieke bezoekers',
+
+	'HOV'			=> 'Hourly overview',
+	'DOV'			=> 'Daily overview',
+	'MOV'			=> 'Monthly overview',
+	'YOV'			=> 'Yearly overview',
 
 	// Online
 	'TIME'		=> 'Tijd',
@@ -55,6 +61,15 @@ $lang = array_merge($lang, array(
 	'VIEWS'			=> 'Hits',
 	'PERC'			=> 'Percentage',
 	'GRAPH'			=> 'Grafiek',
+
+	// Top10
+	'PPD'		=>	'Posts per day',
+	'PPM'		=>	'Posts per month',
+	'TPD'		=>	'Topics per day',
+	'TPM'		=>	'Topics per month',
+	'FORUMDAYS'	=>	'Forumdays',
+	'APPT'		=>	'Average posts per topic',
+	'APPU'		=>	'Average posts per user',
 
 	//Config
 	'MAX_COUNTRIES'		=> 'Landen',

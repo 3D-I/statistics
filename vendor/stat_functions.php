@@ -3,7 +3,7 @@
 *
 * @package Statistics
 * @copyright (c) 2014 ForumHulp.com
-* @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+* @license Proprietary
 *
 */
 
@@ -102,9 +102,9 @@ class stat_functions
 		// sort keys, direction en sql
 		$sort_key	= $request->variable('sk', 't');
 		$sort_dir	= $request->variable('sd', 'd');
-		$sort_by_sql = array('t' => 'time', 'u' => 'uname', 'm' => 'module', 'd' => 'domain', 'h' => 'host');
+		$sort_by_sql = array('t' => 'time', 'u' => 'uname', 'm' => 'module', 'd' => 'domain', 'h' => 'host', 'g' => 'ugroup');
 		$sql_sort = $sort_by_sql[$sort_key] . ' ' . (($sort_dir == 'd') ? 'DESC' : 'ASC');
-
+		
 		$template->assign_vars(array(
 			'U_ACTION'			=> $uaction,
 			'S_SORT_KEY'		=> $sort_key,
@@ -132,24 +132,28 @@ class stat_functions
 		$base_url = $uaction . '&amp;screen=online&amp;sk=' . $sort_key . '&amp;sd=' . $sort_dir;
 		$pagination->generate_template_pagination($base_url, 'pagination', 'start', $total_entries, $sconfig['statistics_max_online'], $start);
 
-		$sql = 'SELECT o.time, o.uname, o.agent, o.ip_addr, o.host, o.domain, d.description, o.module, o.page, o.referer FROM ' . $tables['online'] . ' o
-				LEFT JOIN ' . $tables['domain'] . ' d ON (d.domain = o.domain)' 
+		$sql = 'SELECT o.time, o.uname, o.ugroup, g.group_name, g.group_type, o.agent, o.ip_addr, o.host, o.domain, d.description, o.module, o.page, o.referer FROM ' . $tables['online'] . ' o
+				LEFT JOIN ' . $tables['domain'] . ' d ON (d.domain = o.domain) 
+				LEFT JOIN ' . GROUPS_TABLE . ' g ON (g.group_id = o.ugroup) '
 				. ((!$sconfig['statistics_botsinc']) ? $botswhere : '') . ' ORDER BY o.' . $sql_sort;
 
 		$result = $db->sql_query_limit($sql, $sconfig['statistics_max_online'], $start);
 		$counter = 0;
+		$url = generate_board_url() . '/';
 		while ($row = $db->sql_fetchrow($result))
 		{
 			$counter += 1;
+			$group_name = ($row['group_type'] == GROUP_SPECIAL) ? $user->lang['G_' . $row['group_name']] : $row['group_name'];
 			$template->assign_block_vars('onlinerow', array(
 				'COUNTER'   => $start + $counter,
 				'TIJD'		=> $user->format_date($row['time'], 'H:i'),
 				'DATE'		=> $user->format_date($row['time'], 'D M d, Y'),
 				'FLAG'		=> ($row['uname'] != 'Anonymous') ? 'online-user.gif' : 'offline-user.gif',
 				'UNAME'		=> $row['uname'],
+				'UGROUP'	=> $group_name,
 				'AGENT'		=> $row['agent'],
 				'MODULE'	=> isset($modules[$row['module']]) ? $modules[$row['module']] : 'Module not found',
-				'MODULEURL'	=> '/' . $row['page'],
+				'MODULEURL'	=> $url . $row['page'],
 				'DFLAG'		=> $row['domain'].'.png',
 				'DDESC'		=> $row['description'],
 				'HOST'		=> $row['host'],
@@ -945,8 +949,8 @@ class stat_functions
 		}
 		$template->assign_vars(array(
 			'STATS' => '[' . $graphstr . ']', 'DATES' => '[' . $datestr . ']',
-			'TITLE' => '\'' . (($sort_key == 'd') ? 'Daily overview ' . date("F",mktime(0,0,0,$month,1,2014)) . ' ' . $year :
-						(($sort_key == 'm') ? 'Monthly overview ' . $year : 'Yearly overview')) . '\''));
+			'TITLE' => '\'' . (($sort_key == 'd') ? $user->lang['DOV'] . ' ' . date("F",mktime(0,0,0,$month,1,2014)) . ' ' . $year :
+						(($sort_key == 'm') ? $user->lang['MOV'] . ' ' . $year : $user->lang['YOV'] . ' ')) . '\''));
 	}
 
 	public static function ustats($start = 0, $uaction = '')
@@ -970,7 +974,7 @@ class stat_functions
 		}
 		$template->assign_vars(array(
 			'STATS' => '[' . $graphstr . ']', 'DATES' => '[' . $datestr . ']',
-			'TITLE' => '\'Hourly overview\''));
+			'TITLE' => '\'' . $user->lang['HOV'] . '\''));
 	}
 
 	public static function users($start = 0, $uaction = '', $overall = 0)
@@ -1072,10 +1076,17 @@ class stat_functions
 	{
 		global $db, $config, $sconfig, $user, $table_prefix, $tables, $request, $template, $phpbb_container;
 		$module_aray = array(0 => 'COUNTRIES', 1 => 'REFERRALS', 2 => 'SEARCHENG', 3 => 'SEARCHTERMS', 4 => 'BROWSERS', 5 => 'CRAWLERS', 6 => 'SYSTEMS', 7 => 'MODULES',
-							8 => 'RESOLUTIONS', 9 => 'USERS', 10 => 'FL_DATE', 11 => 'POSTS', 12 => 'UNIQUE');
+							8 => 'RESOLUTIONS', 9 => 'USERS', 10 => 'FL_DATE', 11 => 'POSTS', 12 => 'UGROUPS', 13 => 'SEARCHRESULTS', 14 => 'UNIQUE');
 		$modules = self::get_modules();
 		
-		$db_tools = new \phpbb\db\tools($db);
+		if (version_compare($config['version'], '3.2.*', '<'))
+		{
+			 $db_tools = new \phpbb\db\tools($db);
+		} else
+		{
+			$db_tools_factory = new \phpbb\db\tools\factory();
+			$db_tools = $db_tools_factory->get($db);
+		}
 		$searchresulttabel = $db_tools->sql_table_exists($table_prefix . 'searchresults');
 
 		$sql_aray[] = 'SELECT d.description AS name, o.hits FROM ' . $tables['archive'] . ' o LEFT JOIN ' . $tables['domain'] . ' d ON (d.domain = o.name) 
@@ -1102,9 +1113,11 @@ class stat_functions
 					   WHERE table_schema = "' . $db->get_db_name() . '" AND table_name = "' . $tables['archive'] . '"' . 
 					   (($searchresulttabel) ? ' UNION SELECT "Searchwords" AS name, COUNT(search_key) AS hits FROM ' . $table_prefix . 'searchresults' : '');
 		$sql_aray[] = '';
+		$sql_aray[] = 'SELECT g.group_name AS name, g.group_type, hits FROM ' . $tables['archive'] . ' LEFT JOIN ' . GROUPS_TABLE . ' g ON g.group_id = name WHERE cat = 10 ORDER BY hits DESC';
+		$sql_aray[] = (!$phpbb_container->get('ext.manager')->is_enabled('forumhulp/searchresults')) ?
+						'SELECT "<a href=\"https://github.com/ForumHulp/searchresults\" target=\"_blank\">Searchresult extension</a> not enabled" AS name, "" AS hits' :
+						'SELECT search_keywords AS name, hits FROM ' . $phpbb_container->getParameter('tables.searchresults') . ' ORDER BY hits DESC';
 		$sql_aray[] = 'SELECT name, hits FROM ' . $tables['archive'] . ' WHERE cat = 9 ORDER BY hits DESC';
-
-
 
 		$pagination = $phpbb_container->get('pagination');
 		$base_url = $uaction . '&amp;screen=top10';
@@ -1117,7 +1130,7 @@ class stat_functions
 				'TITLE'			=> $user->lang[$module_aray[$i]],
 			));
 
-			if ($i < 12)
+			if ($i < 14)
 			{
 				$result = $db->sql_query_limit($sql_aray[$i], 10, 0);
 				$counter = 0;
@@ -1126,7 +1139,8 @@ class stat_functions
 					$counter += 1;
 					$template->assign_block_vars('blocks.block', array(
 						'COUNTER'  	=> $counter,
-						'NAME'		=> ($i == 7) ? ((isset($modules[$row['name']])) ? $modules[$row['name']] : 'Not found') : $row['name'],
+						'NAME'		=> ($i == 7) ? ((isset($modules[$row['name']])) ? $modules[$row['name']] : 'Not found') : 
+										(($i == 12 && $row['group_type'] == GROUP_SPECIAL) ? $user->lang['G_' . $row['name']] : $row['name']),
 						'HITS'		=> ($i == 10 && isset($row['hits']) && $counter < 3) ? $user->format_date($row['hits'], 'd m \'y') : self::roundk($row['hits']),
 						'THITS'		=> ($i == 10 && isset($row['hits']) && $counter < 3) ? $user->format_date($row['hits']) : $row['hits']
 						)
@@ -1138,13 +1152,13 @@ class stat_functions
 					{
 						if ($i == 11)
 						{
-							$aray[0] = array('name' => 'Posts per day', 'hits' => round($config['num_posts'] / ((time() - $config['board_startdate']) / 86400), 1));
-							$aray[1] = array('name' => 'Posts per month', 'hits' => round($config['num_posts'] / ((time() - $config['board_startdate']) / 2440800), 1));
-							$aray[2] = array('name' => 'Topics per day', 'hits' => round($config['num_topics'] / ((time() - $config['board_startdate']) / 86400), 1));
-							$aray[3] = array('name' => 'Topics per month', 'hits' => round($config['num_topics'] / ((time() - $config['board_startdate']) / 2440800), 1));
-							$aray[4] = array('name' => 'Forumdays', 'hits' => floor((time() - $config['board_startdate']) / 86400));
-							$aray[5] = array('name' => 'Average posts per topic', 'hits' => floor($config['num_posts'] / $config['num_topics']));
-							$aray[6] = array('name' => 'Average posts per user', 'hits' => floor($config['num_posts'] / $config['num_users']));
+							$aray[0] = array('name' => $user->lang['PPD'], 'hits' => round($config['num_posts'] / ((time() - $config['board_startdate']) / 86400), 1));
+							$aray[1] = array('name' => $user->lang['PPM'], 'hits' => round($config['num_posts'] / ((time() - $config['board_startdate']) / 2440800), 1));
+							$aray[2] = array('name' => $user->lang['TPD'], 'hits' => round($config['num_topics'] / ((time() - $config['board_startdate']) / 86400), 1));
+							$aray[3] = array('name' => $user->lang['TPM'], 'hits' => round($config['num_topics'] / ((time() - $config['board_startdate']) / 2440800), 1));
+							$aray[4] = array('name' => $user->lang['FORUMDAYS'], 'hits' => floor((time() - $config['board_startdate']) / 86400));
+							$aray[5] = array('name' => $user->lang['APPT'], 'hits' => floor($config['num_posts'] / $config['num_topics']));
+							$aray[6] = array('name' => $user->lang['APPU'], 'hits' => floor($config['num_posts'] / $config['num_users']));
 						}
 
 						$template->assign_block_vars('blocks.block', array(
@@ -1167,6 +1181,16 @@ class stat_functions
 						'NAME'		=> $user->format_date($row['name'], 'd F \'y'),
 						'HITS'		=> self::roundk($row['hits']),
 						'THITS'		=> $row['hits']
+						)
+					);
+				}
+				for($counter + 1; $counter + 1 <= 10; $counter++)
+				{
+					$template->assign_block_vars('blocks.block', array(
+						'COUNTER'  	=> $counter + 1,
+						'NAME'		=> '',
+						'HITS'		=> '',
+						'THITS'		=> ''
 						)
 					);
 				}
@@ -1258,7 +1282,7 @@ class stat_functions
 
 		if ($request->is_set('submit_start_screen'))
 		{
-			$sql = 'UPDATE ' . $tables['config'] . ' SET start_screen = "' . $request->variable('start_screen', 'default') . '", archive=' . $request->variable('archive', 0) . '';
+			$sql = 'UPDATE ' . $tables['config'] . ' SET start_screen = "' . $request->variable('start_screen', 'online') . '", archive=' . $request->variable('archive', 0) . '';
 			$db->sql_query($sql);
 		}
 

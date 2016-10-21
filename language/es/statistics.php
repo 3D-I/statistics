@@ -3,7 +3,7 @@
 *
 * @package Statistics
 * @copyright (c) 2014 ForumHulp.com
-* @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+* @license Proprietary
 *
 */
 
@@ -39,7 +39,13 @@ $lang = array_merge($lang, array(
 	'USERSTATS'		=> 'Gráficos de estadísticas de usuarios',
 	'LASTVISITS'	=> 'Página de últimas visitas',
 	'FL_DATE'		=> 'Información de la trabla de archivo',
+	'UGROUPS'		=> 'User groups',
 	'UNIQUE'		=> 'Unique visitors',
+
+	'HOV'			=> 'Hourly overview',
+	'DOV'			=> 'Daily overview',
+	'MOV'			=> 'Monthly overview',
+	'YOV'			=> 'Yearly overview',
 
 	// Online
 	'TIME'		=> 'Fecha',
@@ -54,6 +60,15 @@ $lang = array_merge($lang, array(
 	'VIEWS'			=> 'Vistas',
 	'PERC'			=> 'Porcentaje',
 	'GRAPH'			=> 'Gráfico',
+
+	// Top10
+	'PPD'		=>	'Posts per day',
+	'PPM'		=>	'Posts per month',
+	'TPD'		=>	'Topics per day',
+	'TPM'		=>	'Topics per month',
+	'FORUMDAYS'	=>	'Forumdays',
+	'APPT'		=>	'Average posts per topic',
+	'APPU'		=>	'Average posts per user',
 
 	//Config
 	'MAX_COUNTRIES'		=> 'Países',
@@ -103,5 +118,4 @@ $lang = array_merge($lang, array(
 	'BS_STATUS_TIMEOUT'			=> 'Refresh timeout',
 	'BS_STATUS_ERROR'			=> 'Refresh error',
 	'BS_STATUS_ERROR_EXPLAIN'	=> 'An error occurred during refreshing the page.',
-
 ));

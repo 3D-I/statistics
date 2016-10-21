@@ -3,7 +3,7 @@
 *
 * @package Statistics
 * @copyright (c) 2014 ForumHulp.com
-* @license http://opensource.org/licenses/gpl-2.0.php GNU General Public License v2
+* @license Proprietary
 *
 */
 
@@ -39,7 +39,13 @@ $lang = array_merge($lang, array(
 	'USERSTATS'		=> 'ユーザー統計グラフ',
 	'LASTVISITS'	=> '最新の訪問ページ',
 	'FL_DATE'		=> 'アーカイブテーブル情報',
+	'UGROUPS'		=> 'User groups',
 	'UNIQUE'		=> 'Unique visitors',
+
+	'HOV'			=> 'Hourly overview',
+	'DOV'			=> 'Daily overview',
+	'MOV'			=> 'Monthly overview',
+	'YOV'			=> 'Yearly overview',
 
 	// Online
 	'TIME'		=> '時間',
@@ -54,6 +60,15 @@ $lang = array_merge($lang, array(
 	'VIEWS'			=> '閲覧数',
 	'PERC'			=> 'パーセント',
 	'GRAPH'			=> 'グラフ',
+
+	// Top10
+	'PPD'		=>	'Posts per day',
+	'PPM'		=>	'Posts per month',
+	'TPD'		=>	'Topics per day',
+	'TPM'		=>	'Topics per month',
+	'FORUMDAYS'	=>	'Forumdays',
+	'APPT'		=>	'Average posts per topic',
+	'APPU'		=>	'Average posts per user',
 
 	//Config
 	'MAX_COUNTRIES'		=> '国',

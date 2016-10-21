@@ -5,6 +5,7 @@
 * @copyright (c) 2014 ForumHulp.com
 * @license Proprietary
 *
+* Translated By : Bassel Taha Alhitary - www.alhitary.net
 */
 
 if (!defined('IN_PHPBB'))
@@ -18,14 +19,14 @@ if (empty($lang) || !is_array($lang))
 }
 
 $lang = array_merge($lang, array(
-	'ACP_STATISTICS'		=> 'Board Statistics',
-	'LOG_STATISTICS_PRUNED'		=> '<strong>Board Statistics pruned</strong><br />» %1$.1f seconds used, %2$.1f  rows per second',
-	'LOG_STATISTICS_NO_PRUNE'	=> '<strong>Board Statistics</strong><br />» No records pruned',
+	'ACP_STATISTICS'			=> 'إحصائيات المنتدى',
+	'LOG_STATISTICS_PRUNED'		=> '<strong>تم تهذيب إحصائيات المنتدى</strong><br />» %1$.1f ثواني مستخدمة , %2$.1f صفوف كل ثانية',
+	'LOG_STATISTICS_NO_PRUNE'	=> '<strong>إحصائيات المنتدى</strong><br />» لا يوجد سجلات للتهذيب',
 
-	'STAT_DELETE_SUCCESS'		=> 'Archive tables emptyed',
-	'STAT_DELETE_ERROR'			=> 'Truncate error emptying archive tables.',
+	'STAT_DELETE_SUCCESS'		=> 'تم حذف جداول الأرشيف ',
+	'STAT_DELETE_ERROR'			=> 'هناك خطأ في عملية حذف جداول الأرشيف.',
 	'FH_HELPER_NOTICE'			=> 'Forumhulp helper application does not exist!<br />Download <a href="">forumhulp/helper</a> and copy the helper folder to your forumhulp extension folder.',
-	'STATISTICS_NOTICE'			=> '<div class="phpinfo"><p class="entry">Configuratie instellingenvindt je in %1$s » %2$s » %3$s.</p></div>',
+	'STATISTICS_NOTICE'			=> '<div class="phpinfo"><p class="entry">إعدادات الضبط لهذه الإضافة موجودة في %1$s » %2$s » %3$s.</p></div>',
 ));
 
 // Description of extension
